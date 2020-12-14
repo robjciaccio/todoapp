@@ -9,12 +9,13 @@ import {
   ScrollView,
   FlatList,
 } from 'react-native'
-
+const { v4: uuidv4 } = require('uuid')
 import GoalItem from './components/GoalItem'
 import GoalInput from './components/GoalInput'
 
 export default function App() {
   const [goals, setGoals] = useState([])
+  const [goalMode, setGoalMode] = useState(false)
 
   const removeGoalHandler = (goalId) => {
     setGoals((prevGoals) => {
@@ -25,20 +26,26 @@ export default function App() {
   const addGoalHandler = (goal) => {
     setGoals((prevGoals) => [
       ...prevGoals,
-      { id: Math.random().toString(), value: goal },
+      { id: uuidv4(), value: goal },
     ])
+    setGoalMode(false)
+  }
+
+  const cancelHandler = () => {
+    setGoalMode(false)
   }
 
   return (
     <View style={styles.screen}>
-      <GoalInput onAddGoal={addGoalHandler} />
+      <Button title='New Goal' onPress={() => setGoalMode(true)}/>
+      <GoalInput visible={goalMode} onAddGoal={addGoalHandler} cancelHandler={cancelHandler}/>
       <FlatList
         keyExtractor={(item, index) => item.id}
         showsVerticalScrollIndicator={false}
         data={goals}
         renderItem={(itemData) => (
           <GoalItem
-            id={itemData.id}
+            id={itemData.item.id}
             onDelete={removeGoalHandler}
             goal={itemData.item.value}
           />
